@@ -18,6 +18,10 @@ use App\Http\Controllers\UserController;
 */
 Route::get('/user/{id}/order', [UserController::class, 'historyOrder']);
 
+Route::get('/login', function () {
+    return Inertia::render('auth/Login'); // Bukan view()
+});
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [

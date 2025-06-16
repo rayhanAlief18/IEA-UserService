@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    networks:
+      - laravel
+    depends_on:
+      - db-user
+    ports:
+      - "9002:9000"
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    command: >
+      sh -c "
+      chown -R www-data:www-data storage bootstrap/cache &&
+      chmod -R 775 storage bootstrap/cache &&
+      php-fpm
+      "
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx-order
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf  # ✅ ini benar!
+    depends_on:
+      - app
+    networks:
+      - laravel
+
+  db-user:
+    image: postgres:17
+    container_name: db-user
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: motor-wash_user-service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - laravel
+    ports:
+      - "5434:5432"
+    
+
+volumes:
+  pgdata:
+
+networks:
+  laravel:
+    driver: bridge
