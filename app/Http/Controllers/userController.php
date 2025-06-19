@@ -177,7 +177,7 @@ class userController extends Controller
 
             try{
                 // Batasi timeout agar tidak nunggu terlalu lama
-                $response = Http::timeout(2)->get("http://127.0.0.1:8003/api/order/by-user/{$id}");
+                $response = Http::timeout(2)->get("http://nginx-order/api/order/by-user/{$id}");
 
                 if ($response->successful()) {
                     $orders = $response->json('data'); // array order
@@ -215,5 +215,19 @@ class userController extends Controller
             ],500);
         }
     }
+
+    public function getUserByIdHasura(Request $request)
+{
+    $id = $request->input('id');
+
+    $user = User::find($id);
+
+    return response()->json([
+        'id' => $user->id,
+        'nama' => $user->nama,
+        'email' => $user->email,
+    ]);
+}
+
 
 }

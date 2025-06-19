@@ -17,7 +17,11 @@ use App\Http\Controllers\UserController;
 Route::post('/register', [UserController::class, 'register']);
 // Route::get('/getUser', [UserController::class, 'index']);
 Route::get('/getUser', [UserController::class, 'index']);
+
 Route::get('/getUser/{id}', [UserController::class, 'getUserById']);
+
+Route::post('/hasura/get-user', [UserController::class, 'getUserByIdHasura']);
+
 
 Route::get('/user/{id}/order',[UserController::class,'historyOrderUser']);
 

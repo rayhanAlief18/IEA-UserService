@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   app:
@@ -11,11 +11,11 @@ services:
     volumes:
       - .:/var/www
     networks:
-      - laravel
+      - laravel-net
     depends_on:
       - db-user
     ports:
-      - "9002:9000"
+      - "9009:9000"
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
@@ -28,7 +28,7 @@ services:
 
   nginx:
     image: nginx:stable-alpine
-    container_name: nginx-order
+    container_name: nginx-user
     restart: unless-stopped
     ports:
       - "8081:80"
@@ -38,7 +38,7 @@ services:
     depends_on:
       - app
     networks:
-      - laravel
+      - laravel-net
 
   db-user:
     image: postgres:17
@@ -51,14 +51,28 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - laravel
+      - laravel-net
     ports:
       - "5434:5432"
-    
+
+  hasura-order:
+    image: hasura/graphql-engine:v2.34.0
+    ports:
+      - "8087:8080"  # GUNAKAN PORT BERBEDA AGAR TIDAK BENTROK
+    restart: always
+    depends_on: 
+      - db-user
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:admin123@db-user:5432/motor-wash_user-service
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecret-user
+    networks:
+      - laravel-net    
 
 volumes:
   pgdata:
 
 networks:
-  laravel:
-    driver: bridge
+  laravel-net:
+    external: true
+
